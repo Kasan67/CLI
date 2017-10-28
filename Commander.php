@@ -2,55 +2,68 @@
 <?php
 
 namespace Netpeak;
+
 require_once('./vendor/autoload.php');
 
-use Netpeak\Parser as Parser;
-use Netpeak\Reporter as Reporter;
-
+/**
+ * Class Commander
+ * @package Netpeak
+ */
 class Commander
 {
 
-    function __construct(int $argc, array $argv)
+    /**
+     * Commander constructor.
+     * @param array $options
+     */
+    function __construct(array $options)
     {
-        if ($argc != 2) $this->help($argv[0]);
-        switch ($argv[1])
+        switch (key($options))
         {
             case "parse":
-                $parser = new Parser($this->getUrl());
+                $parser = new Parser($this->checkUrl($options['parse']));
                 echo $parser->parse();
                 break;
 
             case "report":
-                require_once "Reporter.php";
-                $reporter = new Reporter($this->getUrl());
+                $reporter = new Reporter($this->checkUrl($options['report']));
                 echo $reporter->report();
                 break;
 
-            case "help":
+            case "help" || "h":
             default:
-                echo $this->help($argv[0]);
+                echo $this->help();
         }
 
     }
 
-    protected function help($script): string
+    /**
+     * @return string
+     */
+    protected function help(): string
     {
         $message = "Неизвестная команда. " . PHP_EOL
-            . "Использование: {$script} <command> " . PHP_EOL
+            . "Использование: ./Commander.php <command> " . PHP_EOL
             . "<command> обязательный параметр. " . PHP_EOL
-            . "Команда parse - запускает парсер, принимает обязательный параметр url (как с протоколом, так и без)." .PHP_EOL
-            . "Команда report - выводит в консоль результаты анализа для домена, "
+            . "Команда --parse - запускает парсер, принимает обязательный параметр url (как с протоколом, так и без)." .PHP_EOL
+            . "Команда --report - выводит в консоль результаты анализа для домена, "
             . "принимает обязательный параметр domain (как с протоколом, так и без)." . PHP_EOL
-            . "Команда help - выводит текущую справочную информацию." . PHP_EOL;
+            . "Команда --help || -h - выводит текущую справочную информацию." . PHP_EOL;
 
         return $message;
     }
 
 
-    private function getUrl(): string
+    /**
+     * @param $url
+     * @return string
+     */
+    private function checkUrl($url): string
     {
-        return readline('Пожалуйста, укажите url : ');
+        return strpos($url,"http") === false ? "http://{$url}" : $url;
     }
 }
 
-new Commander($argc, $argv);
+$options = getopt("p:r:h",
+    ["parse:", "report:", "help"]);
+new Commander($options);

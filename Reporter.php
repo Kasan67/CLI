@@ -2,28 +2,49 @@
 
 namespace Netpeak;
 
+/**
+ * Class Reporter
+ * @package Netpeak
+ */
 class Reporter
 {
+    /**
+     * @var mixed
+     */
     private $domain;
 
+    /**
+     * Reporter constructor.
+     * @param string $url
+     */
     function __construct(string $url)
     {
         $this->domain = parse_url($url,PHP_URL_HOST);
+        $this->checkFile();
     }
 
+    private function checkFile()
+    {
+        if(!is_readable("reports/{$this->domain}.csv")) {
+            die("Can't find report for domain: {$this->domain}. Please use 'parse' command for prepare report." . PHP_EOL);
+        }
+    }
+
+    /**
+     * @return string
+     */
     public function report(): string
     {
-        if (($handle = fopen("{$this->domain}.csv", "r")) !== FALSE) {
-            while (($data = fgetcsv($handle, 0, ";")) !== FALSE) {
-                $num = count($data);
-                for ($c=0; $c < $num; $c++) {
-                    echo $data[$c] . PHP_EOL;
-                }
+        $handle = fopen("reports/{$this->domain}.csv", "r");
+
+        while (($data = fgetcsv($handle, 0, ";")) !== FALSE) {
+            for ($c=0; $c < count($data); $c++) {
+                echo $data[$c] . PHP_EOL;
             }
-            fclose($handle);
-            return "End of report for domain : {$this->domain} " . PHP_EOL;
-        } else {
-            return "Can't find report for domain: {$this->domain}. Please use 'parse' command for prepare report." . PHP_EOL;
         }
+        fclose($handle);
+
+        return "End of report for domain : {$this->domain} " . PHP_EOL;
+
     }
 }

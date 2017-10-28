@@ -2,21 +2,51 @@
 
 namespace Netpeak;
 
+/**
+ * Class Parser
+ * @package Netpeak
+ */
 class Parser
 {
+    /**
+     * @var string
+     */
     private $url;
+
+    /**
+     * @var mixed
+     */
     private $domain;
+
+    /**
+     * @var mixed|string
+     */
     private $protocol;
+
+    /**
+     * @var resource
+     */
     private $file;
+
+    /**
+     * @var array
+     */
     private $opts;
+
+    /**
+     * @var array
+     */
     public $links;
 
+    /**
+     * Parser constructor.
+     * @param string $url
+     */
     function __construct(string $url)
     {
         $this->url = $url;
         $this->domain = parse_url($url,PHP_URL_HOST);
-        #TODO check if url without 'http://'
-        $this->protocol = parse_url($url, PHP_URL_SCHEME);
+        $this->protocol = parse_url($url, PHP_URL_SCHEME) ?? "http";
         $this->opts = stream_context_create([
             'http'=>[
                 'method'=>"GET",
@@ -25,22 +55,28 @@ class Parser
         ]);
     }
 
+    /**
+     * @return string
+     */
     public function parse(): string
     {
         if($content = $this->getContent($this->url)) {
-            $this->file = fopen("{$this->domain}.csv", "w");
+            $this->file = fopen("reports/{$this->domain}.csv", "w");
 
             #TODO format base url
             $this->parseImages($content, $this->url);
             $this->parseSubUrls($content);
 
             fclose($this->file);
-            return "{$this->domain}.csv";
+            return "reports/{$this->domain}.csv";
         } else {
             return "Failed to parse url : {$this->url} " . PHP_EOL;
         }
     }
 
+    /**
+     * @param string $content
+     */
     private function parseSubUrls(string $content)
     {
         preg_match_all('/(href)=("\/[a-zA-Z^"?]*")/i', $content, $links, PREG_SET_ORDER);
@@ -56,6 +92,10 @@ class Parser
         }
     }
 
+    /**
+     * @param string $content
+     * @param string $domain
+     */
     private function parseImages(string $content, string $domain)
     {
         preg_match_all('/<img[^>]+>/i', $content, $result);
@@ -66,6 +106,10 @@ class Parser
         }
     }
 
+    /**
+     * @param string $domain
+     * @param array $images
+     */
     private function saveImageUrl(string $domain, array $images)
     {
         foreach ($images as $image) {
@@ -75,6 +119,10 @@ class Parser
         }
     }
 
+    /**
+     * @param string $url
+     * @return string
+     */
     private function getContent(string $url): string
     {
         return file_get_contents($url, false, $this->opts);
