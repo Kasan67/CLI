@@ -2,6 +2,10 @@
 <?php
 
 namespace Netpeak;
+require_once('./vendor/autoload.php');
+
+use Netpeak\Parser as Parser;
+use Netpeak\Reporter as Reporter;
 
 class Commander
 {
@@ -12,7 +16,6 @@ class Commander
         switch ($argv[1])
         {
             case "parse":
-                require_once "Parser.php";
                 $parser = new Parser($this->getUrl());
                 echo $parser->parse();
                 break;

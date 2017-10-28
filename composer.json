@@ -1,0 +1,16 @@
+{
+    "name": "kashirinsan/cli",
+    "description": "cli url parser for collect image links in .csv files",
+    "authors": [
+        {
+            "name": "KashirinSan",
+            "email": "kashirinas1991@gmail.com"
+        }
+    ],
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "Netpeak\\": "./"
+        }
+    }
+}
