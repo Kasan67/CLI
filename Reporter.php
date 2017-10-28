@@ -1,10 +1,5 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: sanya
- * Date: 28.10.17
- * Time: 12:39
- */
+
 namespace Netpeak;
 
 class Reporter
@@ -22,13 +17,13 @@ class Reporter
             while (($data = fgetcsv($handle, 0, ";")) !== FALSE) {
                 $num = count($data);
                 for ($c=0; $c < $num; $c++) {
-                    echo "{$data[$c]} \n";
+                    echo $data[$c] . PHP_EOL;
                 }
             }
             fclose($handle);
-            return "End of report for domain : {$this->domain} \n";
+            return "End of report for domain : {$this->domain} " . PHP_EOL;
         } else {
-            return "Can't find report for domain: {$this->domain}. Please use 'parse' command for prepare report. \n";
+            return "Can't find report for domain: {$this->domain}. Please use 'parse' command for prepare report." . PHP_EOL;
         }
     }
 }

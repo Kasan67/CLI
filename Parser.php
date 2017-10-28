@@ -1,10 +1,5 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: sanya
- * Date: 28.10.17
- * Time: 12:38
- */
+
 namespace Netpeak;
 
 class Parser
@@ -22,13 +17,12 @@ class Parser
         $this->domain = parse_url($url,PHP_URL_HOST);
         #TODO check if url without 'http://'
         $this->protocol = parse_url($url, PHP_URL_SCHEME);
-        $this->opts = stream_context_create(array(
-            'http'=>array(
+        $this->opts = stream_context_create([
+            'http'=>[
                 'method'=>"GET",
-                'header'=>"Accept-language: en\r\n" .
-                    "Cookie: foo=bar\r\n"
-            )
-        ));
+                'header'=> implode('\r\n',["Accept-language: en", "Cookie: foo=bar"])
+            ]
+        ]);
     }
 
     public function parse(): string
@@ -43,7 +37,7 @@ class Parser
             fclose($this->file);
             return "{$this->domain}.csv";
         } else {
-            return "Failed to parse url : {$this->url}";
+            return "Failed to parse url : {$this->url} " . PHP_EOL;
         }
     }
 
