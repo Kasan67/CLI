@@ -6,7 +6,7 @@ namespace Netpeak;
  * Class Reporter
  * @package Netpeak
  */
-class Reporter
+class Reporter implements ReporterInterface
 {
     /**
      * @var mixed
@@ -23,7 +23,7 @@ class Reporter
         $this->checkFile();
     }
 
-    private function checkFile()
+    public function checkFile()
     {
         if(!is_readable("reports/{$this->domain}.csv")) {
             die("Can't find report for domain: {$this->domain}. Please use 'parse' command for prepare report." . PHP_EOL);

@@ -53,6 +53,7 @@ class Parser
                 'header'=> implode('\r\n',["Accept-language: en", "Cookie: foo=bar"])
             ]
         ]);
+        $this->links[] = $url;
     }
 
     /**
@@ -63,8 +64,7 @@ class Parser
         if($content = $this->getContent($this->url)) {
             $this->file = fopen("reports/{$this->domain}.csv", "w");
 
-            #TODO format base url
-            $this->parseImages($content, $this->url);
+            $this->parseImages($content, $this->domain.parse_url($this->url, PHP_URL_PATH));
             $this->parseSubUrls($content);
 
             fclose($this->file);
@@ -84,10 +84,12 @@ class Parser
         if(!empty($links)) {
             foreach ($links as $link) {
                 $subPage = trim($link[2], '"');
-                $content = $this->getContent("{$this->protocol}://{$this->domain}{$subPage}");
-                $this->parseImages($content, $this->domain.$subPage);
-
-                #TODO create recursion with mapping parsed urls and exit
+                if(!in_array($subPage, $this->links)){
+                    $this->links[] = $subPage;
+                    $subContent = $this->getContent("{$this->protocol}://{$this->domain}{$subPage}");
+                    $this->parseImages($subContent, $this->domain.$subPage);
+                    $this->parseSubUrls($subContent);
+                }
             }
         }
     }
@@ -114,8 +116,26 @@ class Parser
     {
         foreach ($images as $image) {
             if(!empty($image)) {
-                fputcsv($this->file, [$domain, trim($image[2],'"')], ";");
+                fputcsv($this->file, [$domain, $this->checkImageUrl($image[2], $domain)], ";");
             }
+        }
+    }
+
+    /**
+     * @param string $url
+     * @param string $domain
+     * @return string
+     */
+    private function checkImageUrl(string $url, string $domain): string
+    {
+        $url = trim($url,'""');
+        switch($url[0]) {
+            case "/":
+                return trim($domain, "/").$url;
+            case "h":
+                return $url;
+            default:
+                return "{$domain}/{$url}";
         }
     }
 
