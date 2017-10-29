@@ -19,13 +19,13 @@ class Reporter implements ReporterInterface
      */
     function __construct(string $url)
     {
-        $this->domain = parse_url($url,PHP_URL_HOST);
+        $this->domain = parse_url($url, PHP_URL_HOST);
         $this->checkFile();
     }
 
     public function checkFile()
     {
-        if(!is_readable("reports/{$this->domain}.csv")) {
+        if (!is_readable("reports/{$this->domain}.csv")) {
             die("Can't find report for domain: {$this->domain}. Please use 'parse' command for prepare report." . PHP_EOL);
         }
     }
@@ -38,7 +38,7 @@ class Reporter implements ReporterInterface
         $handle = fopen("reports/{$this->domain}.csv", "r");
 
         while (($data = fgetcsv($handle, 0, ";")) !== FALSE) {
-            for ($c=0; $c < count($data); $c++) {
+            for ($c = 0; $c < count($data); $c++) {
                 echo $data[$c] . PHP_EOL;
             }
         }
